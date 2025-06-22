@@ -35,15 +35,49 @@ const editarAlumno = (req, res) => {
 
 const eliminarAlumno = (req, res) => {
     const { id } = req.params;
+
+    // Borrar INSCRIPCIONES del alumno
     connection.query(
-        'DELETE FROM alumno WHERE idAlumno=?',
+        `
+      DELETE i FROM inscripcion i
+      JOIN curso_alumnos ca ON i.idCursoAlumno = ca.idCursoAlumno
+      WHERE ca.idAlumno = ?
+      `,
         [id],
         (err) => {
-            if (err) return res.status(500).json({ error: "Error al eliminar alumno" });
-            res.json({ mensaje: "Alumno eliminado" });
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ error: "Error al borrar inscripciones del alumno" });
+            }
+
+            // CURSO_ALUMNOS del alumno
+            connection.query(
+                'DELETE FROM curso_alumnos WHERE idAlumno = ?',
+                [id],
+                (err) => {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).json({ error: "Error al borrar curso_alumnos del alumno" });
+                    }
+
+                    //  borrar ALUMNO
+                    connection.query(
+                        'DELETE FROM alumno WHERE idAlumno = ?',
+                        [id],
+                        (err) => {
+                            if (err) {
+                                console.error(err);
+                                return res.status(500).json({ error: "Error al eliminar alumno" });
+                            }
+                            res.json({ mensaje: "Alumno eliminado correctamente" });
+                        }
+                    );
+                }
+            );
         }
     );
 };
+
 
 // --- DOCENTES ---
 const listarDocentes = (req, res) => {

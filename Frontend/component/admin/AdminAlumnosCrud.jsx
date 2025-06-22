@@ -40,7 +40,17 @@ export default function AdminAlumnosCrud() {
 						<strong>Email:</strong> {a.email}
 					</span>
 					<div>
-						<button onClick={() => eliminarAlumno(a.idAlumno)}>Eliminar</button>
+						<button
+							onClick={() => {
+								eliminarAlumno(a.idAlumno);
+								if (editando === a.idAlumno) {
+									setForm({ nombre: '', apellido: '', email: '' });
+									setEditando(null);
+								}
+							}}
+						>
+							Eliminar
+						</button>
 						<button
 							onClick={() => {
 								setForm({
